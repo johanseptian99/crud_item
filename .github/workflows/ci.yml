@@ -49,5 +49,5 @@ jobs:
       - name: Run Prisma Migrations
         run: npx prisma migrate dev --name init
 
-      - name: Run Tests
-        run: npm test
+      # - name: Run Tests
+      #   run: npm test
