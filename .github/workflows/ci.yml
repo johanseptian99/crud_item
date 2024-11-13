@@ -1,0 +1,53 @@
+# .github/workflows/ci.yml
+name: CI for Node.js Express API
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: demo1234
+          POSTGRES_DB: db_crud_item
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U myuser"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      DATABASE_URL: "postgresql://myuser:mypassword@localhost:5432/crud_db"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'  # Sesuaikan dengan versi Node.js yang digunakan
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Run Prisma Migrations
+        run: npx prisma migrate dev --name init
+
+      - name: Run Tests
+        run: npm test
